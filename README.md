@@ -43,7 +43,7 @@ Compile:
 
 - Download The Songs In the Form Of .wav
 - Place the Songs In the Songs Folder
-- Add song Names with txt in the Songs.txt file
+- Add song Names with .wav in the Songs.txt file
 - Song added
 
 ## Author
