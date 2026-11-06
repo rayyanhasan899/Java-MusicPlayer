@@ -93,21 +93,28 @@ public class MusicPlayer {
 
         try {
 
-            if (clip != null)
+            if (clip != null) {
                 clip.close();
-
+                clip = null;
+            }
+            if (index < 0 || index >= songs.size()) {
+                System.out.println("No song exists at that index.");
+                return;
+            }
             currentIndex = index;
 
             currentPath = "Songs/" + songs.get(currentIndex);
 
-            AudioInputStream audio =
-                    AudioSystem.getAudioInputStream(
-                            new File(currentPath));
-
-            clip = AudioSystem.getClip();
-            clip.open(audio);
+            try (AudioInputStream audio = AudioSystem.getAudioInputStream(new File(currentPath))) {
+                clip = AudioSystem.getClip();
+                clip.open(audio);
+            }
 
         } catch (Exception e) {
+            if (clip != null) {
+                clip.close();
+                clip = null;
+            }
             System.out.println("Cannot Load Song: " + e.getMessage());
         }
     }
@@ -130,7 +137,7 @@ public class MusicPlayer {
         if (clip == null) return;
 
         long pos = clip.getMicrosecondPosition();
-        clip.setMicrosecondPosition(pos + 10_000_000);
+        clip.setMicrosecondPosition(Math.min(clip.getMicrosecondLength(), pos + 10_000_000));
     }
     // Jump -10 seconds
     public void back10() {
@@ -147,6 +154,7 @@ public class MusicPlayer {
     }
     // Next song (modulo)
     public void next() {
+        if (songs.isEmpty()) return;
 
         int next = (currentIndex + 1) % songs.size();
         loadSong(next);
@@ -154,6 +162,7 @@ public class MusicPlayer {
     }
     // Previous song (modulo)
     public void previous() {
+        if (songs.isEmpty()) return;
 
         int prev =
                 (currentIndex - 1 + songs.size())
